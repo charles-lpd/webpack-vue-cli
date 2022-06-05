@@ -3,7 +3,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onActivated } from 'vue'
+onActivated(()=>{
+  console.log(1)
+})
 const home = ref('Home')
 </script>
 

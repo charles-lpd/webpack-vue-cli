@@ -16,6 +16,9 @@ const TerserWebpackPlugin = require('terser-webpack-plugin')
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin')
 // 复制静态文件
 const CopyPlugin = require('copy-webpack-plugin')
+
+const { VueLoaderPlugin } = require('vue-loader')
+const { DefinePlugin } = require('webpack')
 const getStyleLoaders = (loader) => {
   return [
     MinniCssExtractPlugin.loader,
@@ -35,7 +38,7 @@ const getStyleLoaders = (loader) => {
 }
 
 module.exports = {
-  entry: './src/main.tsx',
+  entry: './src/main.ts',
   output: {
     path: path.resolve(__dirname, '../dist'),
     // 入口文件名
@@ -84,14 +87,31 @@ module.exports = {
       },
       // 处理js
       {
-        test: /\.(ts|tsx|js|jsx)$/,
+        test: /\.(js|jsx)$/,
         // 只处理src文件下的 jsx
         include: path.resolve(__dirname, '../src'),
+        loader: 'babel-loader'
+      },
+      {
+        test: /\.vue$/,
+        exclude: /node_modules/,
+        loader: 'vue-loader'
+      },
+      {
+        test: /\.ts$/,
         loader: 'babel-loader',
         options: {
-          cacheDirectory: true, // 开启 js 缓存
-          cacheCompression: false // 关闭 js 压缩
-        }
+          presets: [
+            '@babel/preset-env',
+            [
+              '@babel/preset-typescript', // 引用Typescript插件
+              {
+                allExtensions: true // ?支持所有文件扩展名
+              }
+            ]
+          ]
+        },
+        exclude: /node_modules/
       }
     ]
   },
@@ -128,6 +148,16 @@ module.exports = {
           }
         }
       ]
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, '../public/index.html')
+    }),
+    new VueLoaderPlugin(),
+    // cross-env 定义的环境变量是给打包工具使用的
+    // definePlugin 定义环境变量给源代码使用的 从而解决vue 页面警告的问题
+    new DefinePlugin({
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false
     })
   ],
   // 开启测试环境
@@ -181,6 +211,6 @@ module.exports = {
   // webpack 解析模块加载选项
   resolve: {
     // 自动补全文件扩展名
-    extensions: ['.ts', '.tsx', '.jsx', '.js', '.json']
+    extensions: ['.vue', '.ts', '.js', '.json']
   }
 }

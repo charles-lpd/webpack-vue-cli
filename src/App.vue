@@ -10,15 +10,17 @@
       about
     </router-link>
     <router-view v-slot="{ Component }">
-      <keep-alive>
-        <component :is="Component" />
-      </keep-alive>
+      <transition name="router-fade" mode="out-in">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </transition>
     </router-view>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-const title = ref('VUE-CLI')
+const title = ref('VUE-CLI-test')
 </script>
 <style>
 .title {

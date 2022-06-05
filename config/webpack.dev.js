@@ -9,13 +9,15 @@ const { DefinePlugin } = require('webpack')
 const isProd = process.env.NODE_ENV === 'production'
 console.log(isProd)
 const { VueLoaderPlugin } = require('vue-loader')
+// 导入插件 用于返回错误给 dev-server
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const getStyleLoaders = (loader) => {
   return [
     'vue-style-loader',
     'css-loader',
     {
       // 处理css兼容性问题
-      // 配合 package.json 中browserslist 来指定兼容性
+      // 配合 package.json中 browserslist 来指定兼容性
       loader: 'postcss-loader',
       options: {
         postcssOptions: {
@@ -73,30 +75,37 @@ module.exports = {
         test: /\.(woff2?|ttf)$/,
         type: 'asset/resource'
       },
-      // 处理ts
-      {
-        test: /\.js$/,
-        // 只处理src文件下的 js
-        include: path.resolve(__dirname, '../src'),
-        loader: 'babel-loader',
-        options: {
-          presets: ['@babel/preset-env'],
-          cacheDirectory: true, // 开启 js 缓存
-          cacheCompression: false // 关闭 js 压缩
-        }
-      },
-      {
-        test: /\.tsx?$/,
-        loader: 'ts-loader',
-        options: {
-          appendTsSuffixTo: [/\.vue$/]
-        },
-        exclude: /node_modules/
-      },
       {
         test: /\.vue$/,
         exclude: /node_modules/,
         loader: 'vue-loader'
+      },
+      {
+        test: /\.ts$/,
+        // 如果babel > 7 可使用babel 进行转译
+        // loader: 'babel-loader',
+        // options: {
+        //   presets: [
+        //     '@babel/preset-env',
+        //     [
+        //       '@babel/preset-typescript', // 引用Typescript插件
+        //       {
+        //         allExtensions: true // ?支持所有文件扩展名
+        //       }
+        //     ]
+        //   ]
+        // },
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: path.resolve(__dirname, '../tsconfig.json'),
+              appendTsSuffixTo: [/\.vue$/], //  默认是个数组
+              transpileOnly: true // 只做语言转换，而不做类型检查, 这里如果不设置成TRUE，就会HMR 报错
+            }
+          }
+        ],
+        exclude: /node_modules/
       }
     ]
   },
@@ -123,8 +132,9 @@ module.exports = {
     new DefinePlugin({
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
-    })
-  ],
+    }),
+    new ForkTsCheckerWebpackPlugin()
+    ],
   // 开启测试环境
   mode: 'development',
   // 开启错误提示
@@ -142,10 +152,9 @@ module.exports = {
   // webpack 解析模块加载选项
   resolve: {
     // 自动补全文件扩展名
-    extensions: ['.ts', '.vue', '.js', '.json'],
+    extensions: ['', '.ts', '.vue', '.js', '.json'],
     alias: {
-      '@': path.resolve(__dirname, '../src'), // 这样配置后 @ 可以指向 src 目录
-      'vue': '@vue/runtime-dom'
+      '@': path.resolve(__dirname, '../src') // 这样配置后 @ 可以指向 src 目录
     }
   },
   devServer: {
