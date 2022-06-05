@@ -1,17 +1,13 @@
 import { InjectionKey } from 'vue'
 import { createStore, Store, useStore as baseUseStore } from 'vuex'
+import { defaultState, State } from './state'
 
-export interface State {
-  count: number
-}
-export const key: InjectionKey<Store<State>> = Symbol()
+export const vuexKey: InjectionKey<Store<State>> = Symbol()
 
 export const store = createStore<State>({
-  state: {
-    count: 10
-  }
+  state: defaultState
 })
 // 定义自己的 `useStore` 组合函数
-export function useStore() {
-  return baseUseStore(key)
+export const useStore = (): Store<State> => {
+  return baseUseStore(vuexKey)
 }

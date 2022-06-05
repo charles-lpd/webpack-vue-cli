@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="title">
-      {{ title }}
+      {{ title }} {{ count }}
     </h1>
     <router-link to="/" class="text-3xl">
       home
@@ -19,7 +19,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useStore } from './store'
+const store = useStore()
+const count = computed(() => {
+  return store.state.count
+})
 const title = ref('VUE-CLI-test')
 </script>
 <style>
