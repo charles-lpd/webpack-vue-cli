@@ -1,3 +1,38 @@
 {
-  "vue3snippets.enable-compile-vue-file-on-did-save-code": false
+  "editor.fontSize": 16,
+  "editor.tabSize": 2,
+  // 每次保存自动格式化
+  "editor.formatOnSave": true,
+  // 每次保存的时候将代码按eslint格式进行修复
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.enable": true, //是否开启vscode的eslint
+  "eslint.validate": [
+    "javascript",
+    "vue",
+    "html"
+  ],
+  //  #去掉代码结尾的分号 
+  "prettier.semi": false,
+  //  #使用单引号替代双引号 
+  "prettier.singleQuote": true,
+  // 关闭js/ts的默认format,统一用eslint进行格式化（tslint已经不维护了，所以转eslint吧）
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  "eslint.options": { //指定vscode的eslint所处理的文件的后缀
+    "extensions": [
+      ".js",
+      ".vue",
+      ".ts",
+      ".tsx"
+    ]
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "octref.vetur"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
 }

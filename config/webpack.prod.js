@@ -17,6 +17,9 @@ const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin')
 // 复制静态文件
 const CopyPlugin = require('copy-webpack-plugin')
 
+// 导入插件 用于返回错误给 dev-server
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+
 const { VueLoaderPlugin } = require('vue-loader')
 const { DefinePlugin } = require('webpack')
 const getStyleLoaders = (loader) => {
@@ -99,18 +102,28 @@ module.exports = {
       },
       {
         test: /\.ts$/,
-        loader: 'babel-loader',
-        options: {
-          presets: [
-            '@babel/preset-env',
-            [
-              '@babel/preset-typescript', // 引用Typescript插件
-              {
-                allExtensions: true // ?支持所有文件扩展名
-              }
-            ]
-          ]
-        },
+        // loader: 'babel-loader',
+        // options: {
+        //   presets: [
+        //     '@babel/preset-env',
+        //     [
+        //       '@babel/preset-typescript', // 引用Typescript插件
+        //       {
+        //         allExtensions: true // ?支持所有文件扩展名
+        //       }
+        //     ]
+        //   ]
+        // },
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: path.resolve(__dirname, '../tsconfig.json'),
+              appendTsSuffixTo: [/\.vue$/], //  默认是个数组
+              transpileOnly: true // 只做语言转换，而不做类型检查, 这里如果不设置成TRUE，就会HMR 报错
+            }
+          }
+        ],
         exclude: /node_modules/
       }
     ]
@@ -158,7 +171,8 @@ module.exports = {
     new DefinePlugin({
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
-    })
+    }),
+    new ForkTsCheckerWebpackPlugin()
   ],
   // 开启测试环境
   mode: 'production',
@@ -168,7 +182,8 @@ module.exports = {
   optimization: {
     // 代码分割
     splitChunks: {
-      chunks: 'all'
+      chunks: 'all',
+      minSize: 50000
     },
     runtimeChunk: {
       name: (entrypoint) => `runtime~${entrypoint.name}.js`

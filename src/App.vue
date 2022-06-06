@@ -3,18 +3,19 @@
     <h1 class="title">
       {{ title }} {{ count }}
     </h1>
-    <router-link to="/" class="text-3xl">
+    <router-link
+      to="/"
+      class="text-3xl"
+    >
       home
     </router-link>
     <router-link to="/about" class="text-3xl">
       about
     </router-link>
     <router-view v-slot="{ Component }">
-      <transition name="router-fade" mode="out-in">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </transition>
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
     </router-view>
   </div>
 </template>

@@ -61,7 +61,7 @@ module.exports = {
       },
       // 处理图片
       {
-        test: /\.(jpe?g|png|gif|svg|webp)$/,
+        test: /\.(jpe?g|png|gif|svg|webp|mp4)$/,
         type: 'asset',
         parser: {
           dataUrlCondition: {

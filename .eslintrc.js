@@ -15,7 +15,6 @@ module.exports = {
     ecmaVersion: 2019,
     // 允许使用import
     sourceType: 'module'
-    // 允许解析JSX
   },
   rules: {
     // never or always
@@ -36,15 +35,12 @@ module.exports = {
     'key-spacing': [1, { beforeColon: false, afterColon: true }], //对象字面量中冒号的前后空格
     semi: [2, 'never'], //语句强制分号结尾
     'vue/multi-word-component-names': 0, // 文件名
-    'vue/html-self-closing': 2, // 如果没有内容就自闭和标签
+    'vue/html-self-closing': 0, // 如果没有内容就自闭和标签
     'vue/html-indent': ['error', 2], // 默认标签两个空格
     'vue/max-attributes-per-line': [
-      // 一个标签单行时最多可以3个props 否则换行展示
       'error',
       {
-        singleline: {
-          max: 3
-        },
+        singleline: 3,
         multiline: {
           max: 1
         }
