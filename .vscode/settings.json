@@ -31,8 +31,5 @@
   "[vue]": {
     "editor.defaultFormatter": "octref.vetur"
   },
-  "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
   "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
 }

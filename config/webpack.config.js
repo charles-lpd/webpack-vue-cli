@@ -19,12 +19,13 @@ const CopyPlugin = require('copy-webpack-plugin')
 
 // 导入插件 用于返回错误给 dev-server
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
-
 const { VueLoaderPlugin } = require('vue-loader')
 const { DefinePlugin } = require('webpack')
+const UnpluginElementPlus = require('unplugin-element-plus/webpack')
+const isProd = process.env.NODE_ENV === 'production'
 const getStyleLoaders = (loader) => {
   return [
-    MinniCssExtractPlugin.loader,
+    isProd ? MinniCssExtractPlugin.loader : 'vue-style-loader',
     'css-loader',
     {
       // 处理css兼容性问题
@@ -43,13 +44,18 @@ const getStyleLoaders = (loader) => {
 module.exports = {
   entry: './src/main.ts',
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: isProd ? path.resolve(__dirname, '../dist') : undefined,
     // 入口文件名
-    filename: 'static/js/[name].[contenthash:10].js',
+    filename: isProd
+      ? 'static/js/[name].[contenthash:10].js'
+      : 'static/js/[name].js',
     // chunk 文件路径
-    chunkFilename: 'static/js/[name].[contenthash:10].chunk.js',
+    chunkFilename: isProd
+      ? 'static/js/[name].[contenthash:10].chunk.js'
+      : 'static/js/[name].chunk.js',
     // asset 处理文件路径
     assetModuleFilename: 'static/media/[hash:10][ext][query]',
+    publicPath: '/',
     // 清除上次 dist文件
     clean: true
   },
@@ -74,7 +80,7 @@ module.exports = {
       },
       // 处理图片
       {
-        test: /\.(jpe?g|png|gif|svg|webp)$/,
+        test: /\.(jpe?g|png|gif|svg|webp|mp4)$/,
         type: 'asset',
         parser: {
           dataUrlCondition: {
@@ -88,17 +94,24 @@ module.exports = {
         test: /\.(woff2?|ttf)$/,
         type: 'asset/resource'
       },
-      // 处理js
+      // 处理 element-plus 版本太高 出现无法处理后缀 mjs 的情况
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx|mjs)$/,
         // 只处理src文件下的 jsx
-        include: path.resolve(__dirname, '../src'),
-        loader: 'babel-loader'
+        include: path.resolve(__dirname, '../node_modules/element-plus'),
+        loader: 'babel-loader',
+        resolve: {
+          fullySpecified: false
+        }
       },
       {
         test: /\.vue$/,
         exclude: /node_modules/,
-        loader: 'vue-loader'
+        loader: 'vue-loader',
+        options: {
+          // 开启缓存
+          cacheDirectory: path.resolve(__dirname, '../node_modules/.cache/vue-loader')
+        }
       },
       {
         test: /\.ts$/,
@@ -145,26 +158,25 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html')
     }),
-    new MinniCssExtractPlugin({
-      filename: 'static/css/[name].[contenthash:10].css',
-      chunkFilename: 'static/css/[name].[contenthash:10].chunk.css'
-    }),
+    isProd &&
+      new MinniCssExtractPlugin({
+        filename: 'static/css/[name].[contenthash:10].css',
+        chunkFilename: 'static/css/[name].[contenthash:10].chunk.css'
+      }),
     // 复制 public 下的文件 到 dist目录中
-    new CopyPlugin({
-      patterns: [
-        {
-          from: path.resolve(__dirname, '../public'), // 来自
-          to: path.resolve(__dirname, '../dist'), // 去处
-          globOptions: {
-            // 因为已经做过 html 处理 所以要忽略掉 index.html
-            ignore: ['**/index.html']
+    isProd &&
+      new CopyPlugin({
+        patterns: [
+          {
+            from: path.resolve(__dirname, '../public'), // 来自
+            to: path.resolve(__dirname, '../dist'), // 去处
+            globOptions: {
+              // 因为已经做过 html 处理 所以要忽略掉 index.html
+              ignore: ['**/index.html']
+            }
           }
-        }
-      ]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, '../public/index.html')
-    }),
+        ]
+      }),
     new VueLoaderPlugin(),
     // cross-env 定义的环境变量是给打包工具使用的
     // definePlugin 定义环境变量给源代码使用的 从而解决vue 页面警告的问题
@@ -172,22 +184,40 @@ module.exports = {
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
     }),
-    new ForkTsCheckerWebpackPlugin()
-  ],
+    new ForkTsCheckerWebpackPlugin(),
+    UnpluginElementPlus({})
+  ].filter(Boolean),
   // 开启测试环境
-  mode: 'production',
+  mode: isProd ? 'production' : 'development',
   // 开启错误提示
-  devtool: 'source-map',
+  devtool: isProd ? 'source-map' : 'cheap-module-source-map',
   // 压缩操作
   optimization: {
     // 代码分割
     splitChunks: {
       chunks: 'all',
-      minSize: 50000
+      cacheGroups: {
+        vue: {
+          test: /[\\/]node_modules[\\/]vue(.*)?[\\/]/,
+          name: 'vue-chunk',
+          priority: 40
+        },
+        elementPlus: {
+          test: /[\\/]node_modules[\\/]element-plus[\\/]/,
+          name: 'elementPlus-chunk',
+          priority: 30
+        },
+        libs: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'libs-chunk',
+          priority: 20
+        }
+      }
     },
     runtimeChunk: {
       name: (entrypoint) => `runtime~${entrypoint.name}.js`
     },
+    minimize: isProd,
     minimizer: [
       new CssMinimizerWebpackPlugin(),
       new TerserWebpackPlugin(),
@@ -226,15 +256,17 @@ module.exports = {
   // webpack 解析模块加载选项
   resolve: {
     // 自动补全文件扩展名
-    extensions: ['.ts', '.vue', '.js', '.json'],
+    extensions: ['.vue', '.ts', '.js', '.json'],
     alias: {
       '@': path.resolve(__dirname, '../src') // 这样配置后 @ 可以指向 src 目录
     }
   },
   devServer: {
     host: 'localhost',
+    port: 9000,
     open: true,
     hot: true,
     historyApiFallback: true // 解决前端路由刷新404问题
-  }
+  },
+  performance: false // 关闭性能分析， 提升打包速度
 }

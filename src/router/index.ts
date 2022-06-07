@@ -9,9 +9,14 @@ const router = createRouter({
       component: Home
     },
     {
-      path: '/about',
+      path: '/about/:id',
       name: 'about',
-      component: () => import('../pages/About/index.vue')
+      component: () => import('@/pages/About/index.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../pages/NotFound.vue')
     }
   ]
 })

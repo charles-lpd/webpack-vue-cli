@@ -9,7 +9,7 @@
     >
       home
     </router-link>
-    <router-link to="/about" class="text-3xl">
+    <router-link to="/about/1" class="text-3xl">
       about
     </router-link>
     <router-view v-slot="{ Component }">

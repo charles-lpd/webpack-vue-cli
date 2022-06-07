@@ -36,6 +36,7 @@ module.exports = {
     // 入口文件名
     filename: 'static/js/[name].js',
     // chunk 文件路径
+    publicPath: './',
     chunkFilename: 'static/js/[name].chunk.js',
     // asset 处理文件路径
     assetModuleFilename: 'static/media/[hash:10][ext][query]'
@@ -133,8 +134,10 @@ module.exports = {
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
     }),
-    new ForkTsCheckerWebpackPlugin()
-    ],
+    new ForkTsCheckerWebpackPlugin({
+      async: false
+    })
+  ],
   // 开启测试环境
   mode: 'development',
   // 开启错误提示
@@ -152,7 +155,7 @@ module.exports = {
   // webpack 解析模块加载选项
   resolve: {
     // 自动补全文件扩展名
-    extensions: ['', '.ts', '.vue', '.js', '.json'],
+    extensions: ['.ts', '.vue', '.js', '.json'],
     alias: {
       '@': path.resolve(__dirname, '../src') // 这样配置后 @ 可以指向 src 目录
     }

@@ -11,7 +11,9 @@
     "useDefineForClassFields": true,
     "sourceMap": true,
     "noImplicitAny": true,
-    "baseUrl": "./",
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
     "allowJs": true,
     "moduleResolution": "node",
     "types": [
