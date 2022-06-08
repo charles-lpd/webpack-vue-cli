@@ -36,7 +36,7 @@ module.exports = {
     // 入口文件名
     filename: 'static/js/[name].js',
     // chunk 文件路径
-    publicPath: './',
+    publicPath: '/',
     chunkFilename: 'static/js/[name].chunk.js',
     // asset 处理文件路径
     assetModuleFilename: 'static/media/[hash:10][ext][query]'
@@ -69,6 +69,16 @@ module.exports = {
             // 如果没有超出maxSize 将会被转化成base64 格式输出
             maxSize: 10 * 1024
           }
+        }
+      },
+      // 处理 element-plus 版本太高 出现无法处理后缀 mjs 的情况
+      {
+        test: /\.(js|jsx|mjs)$/,
+        // 只处理src文件下的 jsx
+        include: path.resolve(__dirname, '../node_modules/element-plus'),
+        loader: 'babel-loader',
+        resolve: {
+          fullySpecified: false
         }
       },
       // 其他资源
@@ -134,9 +144,7 @@ module.exports = {
       __VUE_OPTIONS_API__: true,
       __VUE_PROD_DEVTOOLS__: false
     }),
-    new ForkTsCheckerWebpackPlugin({
-      async: false
-    })
+    new ForkTsCheckerWebpackPlugin()
   ],
   // 开启测试环境
   mode: 'development',
@@ -165,6 +173,7 @@ module.exports = {
     port: 9000,
     open: true,
     hot: true,
+    // 当出现编译错误或警告时，在浏览器中显示全屏覆盖。
     historyApiFallback: true // 解决前端路由刷新404问题
   }
 }

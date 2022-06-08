@@ -110,7 +110,10 @@ module.exports = {
         loader: 'vue-loader',
         options: {
           // 开启缓存
-          cacheDirectory: path.resolve(__dirname, '../node_modules/.cache/vue-loader')
+          cacheDirectory: path.resolve(
+            __dirname,
+            '../node_modules/.cache/vue-loader'
+          )
         }
       },
       {
@@ -267,6 +270,6 @@ module.exports = {
     open: true,
     hot: true,
     historyApiFallback: true // 解决前端路由刷新404问题
-  },
-  performance: false // 关闭性能分析， 提升打包速度
+  }
+  // performance: false // 关闭性能分析， 提升打包速度
 }
