@@ -13,7 +13,7 @@ const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin')
 // 压缩js
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 // 压缩 图片
-const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin')
+// const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin')
 // 复制静态文件
 const CopyPlugin = require('copy-webpack-plugin')
 
@@ -55,7 +55,9 @@ module.exports = {
       : 'static/js/[name].chunk.js',
     // asset 处理文件路径
     assetModuleFilename: 'static/media/[hash:10][ext][query]',
-    publicPath: '/',
+    // assetsPublicPath: './',
+    // publicPath: isProd ? '' : '/',
+    publicPath: isProd ? process.env.BASE_URL : '/',
     // 清除上次 dist文件
     clean: true
   },
@@ -223,37 +225,37 @@ module.exports = {
     minimize: isProd,
     minimizer: [
       new CssMinimizerWebpackPlugin(),
-      new TerserWebpackPlugin(),
-      new ImageMinimizerPlugin({
-        minimizer: {
-          implementation: ImageMinimizerPlugin.imageminMinify,
-          options: {
-            // Lossless optimization with custom option
-            // Feel free to experiment with options for better result for you
-            plugins: [
-              ['gifsicle', { interlaced: true }],
-              ['jpegtran', { progressive: true }],
-              ['optipng', { optimizationLevel: 5 }],
-              // Svgo configuration here https://github.com/svg/svgo#configuration
-              [
-                'svgo',
-                {
-                  plugins: [
-                    'preset-default',
-                    'prefixIds',
-                    {
-                      name: 'sortAttrs',
-                      params: {
-                        xmlnsOrder: 'alphabetical'
-                      }
-                    }
-                  ]
-                }
-              ]
-            ]
-          }
-        }
-      })
+      new TerserWebpackPlugin()
+      // new ImageMinimizerPlugin({
+      //   minimizer: {
+      //     implementation: ImageMinimizerPlugin.imageminMinify,
+      //     options: {
+      //       // Lossless optimization with custom option
+      //       // Feel free to experiment with options for better result for you
+      //       plugins: [
+      //         ['gifsicle', { interlaced: true }],
+      //         ['jpegtran', { progressive: true }],
+      //         ['optipng', { optimizationLevel: 5 }],
+      //         // Svgo configuration here https://github.com/svg/svgo#configuration
+      //         [
+      //           'svgo',
+      //           {
+      //             plugins: [
+      //               'preset-default',
+      //               'prefixIds',
+      //               {
+      //                 name: 'sortAttrs',
+      //                 params: {
+      //                   xmlnsOrder: 'alphabetical'
+      //                 }
+      //               }
+      //             ]
+      //           }
+      //         ]
+      //       ]
+      //     }
+      //   }
+      // })
     ]
   },
   // webpack 解析模块加载选项
@@ -270,6 +272,6 @@ module.exports = {
     open: true,
     hot: true,
     historyApiFallback: true // 解决前端路由刷新404问题
-  }
-  // performance: false // 关闭性能分析， 提升打包速度
+  },
+  performance: false // 关闭性能分析， 提升打包速度
 }

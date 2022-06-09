@@ -1,14 +1,6 @@
 <template>
   <div>{{ about }}</div>
-  <video
-    width="500"
-    height="500"
-    controls
-    autoplay
-  >
-    <source src="@/video/micro_plants_1.mp4" type="video/mp4" />
-    您的浏览器不支持 HTML5 video 标签。
-  </video>
+  <VideoVue video-src="micro_plants_1" @update-count="updateCountNum" />
   {{ count }}
   <ElButton type="primary">
     按钮
@@ -19,13 +11,14 @@
 import { ref, computed } from 'vue'
 import { ElButton } from 'element-plus'
 import { useStore } from '@/store'
+import VideoVue from '@/components/Video.vue'
 const store = useStore()
 const count = computed(()=>{
   return store.state.count
 })
 const about = ref('About')
-const updateCountNum = () =>{
-  store.dispatch('asyncUpdateCount', 11)
+const updateCountNum = (num:number) =>{
+  store.dispatch('asyncUpdateCount', num)
 }
 </script>
 
