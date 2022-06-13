@@ -4,7 +4,7 @@
     :height="height"
     controls
   >
-    <source :src="require(`@/video/${videoSrc}.mp4`)" type="video/mp4" />
+    <source :src="require(`@/video/${videoSrc}.mp4`)" type="video/mp4">
   </video>
   <button @click="clickUpdateCount">
     变成一百
